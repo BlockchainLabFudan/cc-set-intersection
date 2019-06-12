@@ -7,73 +7,73 @@ import (
 )
 
 type Paillier struct {
-	P *big.Int
-	Q *big.Int
+	P  *big.Int
+	Q  *big.Int
 	SK *big.Int
 	PK *big.Int
 	N2 *big.Int
 }
 
 //初始化，传入两个等长大素数
-func (this *Paillier) Init(p,q *big.Int) {
-	this.P = new(big.Int)
-	this.Q = new(big.Int)
-	this.PK = new(big.Int)
-	this.SK = new(big.Int)
-	this.N2 = new(big.Int)
+func (pai *Paillier) Init(p, q *big.Int) {
+	pai.P = new(big.Int)
+	pai.Q = new(big.Int)
+	pai.PK = new(big.Int)
+	pai.SK = new(big.Int)
+	pai.N2 = new(big.Int)
 
-	this.P.Set(p)
-	this.Q.Set(q)
-	this.PK.Mul(p, q)
-	this.N2.Mul(this.PK, this.PK)
+	pai.P.Set(p)
+	pai.Q.Set(q)
+	pai.PK.Mul(p, q)
+	pai.N2.Mul(pai.PK, pai.PK)
 
 	one := big.NewInt(1)
 	p.Sub(p, one)
 	q.Sub(q, one)
-	this.SK.Mul(p, q)
+	pai.SK.Mul(p, q)
 }
 
 //加密，传入明文
-func (this *Paillier) Encrypt(m *big.Int) (*big.Int, error){
-	if this.PK == nil || this.N2 == nil {
+func (pai *Paillier) Encrypt(m *big.Int) (*big.Int, error) {
+	if pai.PK == nil || pai.N2 == nil {
 		return nil, fmt.Errorf("pk not init")
 	}
 
 	res := big.NewInt(0)
-	r, err := this.randomR()
+	r, err := pai.randomR()
 	if err != nil {
 		return nil, err
 	}
 
-	res.Add(big.NewInt(1), this.PK)
-	res.Exp(res, m, this.N2)
-	r.Exp(r, this.PK, this.N2)
+	res.Add(big.NewInt(1), pai.PK)
+	res.Exp(res, m, pai.N2)
+	r.Exp(r, pai.PK, pai.N2)
 	res.Mul(res, r)
-	res.Mod(res, this.N2)
+	res.Mod(res, pai.N2)
 	return res, nil
 }
 
 //从选取随机的r
-func (this *Paillier) randomR() (*big.Int, error) {
-	res, err := rand.Int(rand.Reader, this.N2)
+func (pai *Paillier) randomR() (*big.Int, error) {
+	res, err := rand.Int(rand.Reader, pai.N2)
 	if err != nil {
 		return nil, err
 	}
-	//辗转相除法有点问题
-	//for !euclid(res, this.N2) {
-	//	res,_ = rand.Int(rand.Reader, this.N2)
+	//欧几里得算法
+	//for !euclid(res, pai.N2) {
+	//	res,_ = rand.Int(rand.Reader, pai.N2)
 	//}
 	z := big.NewInt(0)
 	one := big.NewInt(1)
-	z.GCD(nil, nil, res, this.N2)
+	z.GCD(nil, nil, res, pai.N2)
 	for z.Cmp(one) != 0 {
-		res,_ = rand.Int(rand.Reader, this.N2)
+		res, _ = rand.Int(rand.Reader, pai.N2)
 	}
 	return res, nil
 }
 
 //欧几里得算法
-func euclid(a,b *big.Int) bool {
+func euclid(a, b *big.Int) bool {
 	d1 := big.NewInt(0)
 	d2 := big.NewInt(0)
 	zero := big.NewInt(0)
@@ -93,30 +93,32 @@ func euclid(a,b *big.Int) bool {
 	}
 
 	for d3.Cmp(zero) != 0 {
+		println("d3::", d3.String())
+		println("d2::", d2.String())
+		println("d1::", d1.String())
 		d3.Mod(d2, d1)
 		d2.Set(d1)
 		d1.Set(d3)
 	}
 
-	return d3.Cmp(one) == 0
-
+	return d2.Cmp(one) == 0
 }
 
 //解密，传入密文
-func (this *Paillier) Decrypt(c *big.Int) (*big.Int, error){
-	if this.SK == nil {
+func (pai *Paillier) Decrypt(c *big.Int) (*big.Int, error) {
+	if pai.SK == nil {
 		return nil, fmt.Errorf("sk not init")
 	}
 
 	m := big.NewInt(0)
 	sk_1 := big.NewInt(0)
 	//phi(N)的模逆
-	sk_1.ModInverse(this.SK, this.PK)
-	m.Exp(c, this.SK, this.N2)
+	sk_1.ModInverse(pai.SK, pai.PK)
+	m.Exp(c, pai.SK, pai.N2)
 	m.Sub(m, big.NewInt(1))
-	m.Div(m, this.PK)
+	m.Div(m, pai.PK)
 	m.Mul(m, sk_1)
-	m.Mod(m, this.PK)
+	m.Mod(m, pai.PK)
 
 	return m, nil
 }
