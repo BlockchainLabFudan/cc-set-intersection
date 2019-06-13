@@ -3,8 +3,6 @@ package model
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/alex-ant/gomath/gaussian-elimination"
-	"github.com/alex-ant/gomath/rational"
 	"math/big"
 )
 
@@ -169,40 +167,44 @@ func (p *Polynomial) Mul(g *Polynomial) (*Polynomial, error) {
 
 //多项式生成,使用高斯消元法得到系数
 func (p *Polynomial) SetPolynomial(attrs []*big.Int) error {
-	nr := func(i int64) rational.Rational {
-		return rational.New(i, 1)
+	nr := func(i int64) *big.Rat {
+		return big.NewRat(i, 1)
 	}
 
-	var equations [][]rational.Rational
+	var equations [][]*big.Rat
 
 	for index := int64(0); index <= int64(len(attrs)); index++ {
-		var temp []rational.Rational
-
+		var temp []*big.Rat
+		coef := big.NewInt(index)
+		prod := big.NewInt(index)
 		//第一个参数为1
 		temp = append(temp, nr(int64(1)))
 
 		now := big.NewInt(index)
 		value := big.NewInt(1)
-		prod := index
+
 		for _, attr := range attrs {
 			value.Mul(value, big.NewInt(1).Sub(now, attr))
-			temp = append(temp, nr(prod))
-			prod *= index
+			temp = append(temp, big.NewRat(1, 1).SetInt(prod))
+			prod.Mul(prod, coef)
 		}
-		temp = append(temp, nr(value.Int64()))
+		temp = append(temp, big.NewRat(1, 1).SetInt(value))
 
 		equations = append(equations, temp)
 	}
 
-	res, gausErr := gaussian.SolveGaussian(equations, false)
+	res, gausErr := SolveGaussian(equations, false)
 	if gausErr != nil {
 		return gausErr
 	}
 
 	var coef []*big.Int
 	for _, v := range res {
-		//coef = append(coef, big.NewInt(v[0].GetNumerator()))
-		coef = append(coef, big.NewInt(0).Mod(big.NewInt(v[0].GetNumerator()), p.Paillier.PK))
+		//fmt.Println(v)
+		if len(v) != 1 || !v[0].IsInt() {
+			return fmt.Errorf("unknown set error")
+		}
+		coef = append(coef, big.NewInt(0).Mod(v[0].Num(), p.Paillier.PK))
 	}
 	p.Coefficients = coef
 	p.Length = int64(len(coef))

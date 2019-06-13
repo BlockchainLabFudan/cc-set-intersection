@@ -27,14 +27,14 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 	}
 
 	for i := 0; i < len(eqM)-1; i++ {
-		//fmt.Println("eqm::", i, eqM)
+		//fmt.Println("--------+", eqM)
 		eqM = sortMatrix(eqM, i)
-
-		var varC *big.Rat
+		//fmt.Println("---------", eqM)
+		varC := big.NewRat(1, 1)
 
 		for k := i; k < len(eqM); k++ {
 			if k == i {
-				varC = eqM[k][i]
+				varC.Set(eqM[k][i])
 			} else {
 				multipliedLine := make([]*big.Rat, len(eqM[i]))
 				for z, zv := range eqM[i] {
@@ -52,14 +52,14 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 				}
 				newLine := make([]*big.Rat, len(eqM[k]))
 				for z, zv := range eqM[k] {
-					//newLine[z] = zv.Add(multipliedLine[z])
-					newLine[z] = zv.Add(zv, multipliedLine[z])
+					newLine[z] = big.NewRat(1, 1).Add(zv, multipliedLine[z])
 				}
 				eqM[k] = newLine
-
+				//fmt.Println("+++++++++++", eqM)
 			}
 		}
 	}
+	//fmt.Println(eqM)
 
 	// 移除为0的行，并且反转
 	var resultEqM [][]*big.Rat
@@ -71,7 +71,7 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 
 	getFirstNonZeroIndex := func(sl []*big.Rat) (index int) {
 		for i, v := range sl {
-			if v.Sign() != 0 {
+			if v.Num().Int64() != 0 {
 				index = i
 				return
 			}
@@ -162,12 +162,10 @@ func sortMatrix(m [][]*big.Rat, initRow int) (m2 [][]*big.Rat) {
 
 	greaterThanMax := func(rr1, rr2 []*big.Rat) (greater bool) {
 		for i := 0; i < len(rr1); i++ {
-			if rr1[i].Abs(rr1[i]).Cmp(rr2[i].Abs(rr2[i])) > 0 {
-				//fmt.Println("dasdsada")
+			if big.NewRat(1, 1).Abs(rr1[i]).Cmp(big.NewRat(1, 1).Abs(rr2[i])) > 0 {
 				greater = true
 				return
-			} else if rr1[i].Abs(rr1[i]).Cmp(rr2[i].Abs(rr2[i])) < 0 {
-				//fmt.Println("87451498")
+			} else if big.NewRat(1, 1).Abs(rr1[i]).Cmp(big.NewRat(1, 1).Abs(rr2[i])) < 0 {
 				return
 			}
 		}

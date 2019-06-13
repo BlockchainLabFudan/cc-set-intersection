@@ -38,14 +38,19 @@ func NewUser(p *model.Paillier) *model.Polynomial {
 }
 
 func Cal(attrs []*big.Int, p *model.Polynomial) {
+	i := 0
 	for _, attr := range attrs {
 		ok, err := p.CalculateForDec(attr)
 		if err != nil {
 			log.Fatal(err)
 		}
+		ookk := ok.Cmp(zero) == 0
+		if ookk {
+			i++
+		}
 		log.Println("测试交集：attr::", attr.Int64(), " intersection::", ok.Cmp(zero) == 0, " value:", ok)
 	}
-	log.Println()
+	log.Printf("%d个相同,%d个不同", i, len(attrs)-i)
 }
 
 func Equal(p *model.Polynomial, q *model.Polynomial) bool {

@@ -10,9 +10,9 @@ import (
 
 func TestGussian(t *testing.T) {
 	m := make([][]int64, 3)
-	m[0] = []int64{1, 2, 1, 20}
-	m[1] = []int64{3, 1, 2, 29}
-	m[2] = []int64{1, 1, 1, 15}
+	m[0] = []int64{1, 0, 0, 789789789}
+	m[1] = []int64{1, 1, 1, 1369369368}
+	m[2] = []int64{1, 2, 4, 2195195193}
 
 	m2 := make([][]*big.Rat, len(m))
 	for i, iv := range m {
