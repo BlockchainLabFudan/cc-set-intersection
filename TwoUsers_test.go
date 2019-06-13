@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/rand"
+	"fmt"
 	"log"
 	"math/big"
 	"testing"
@@ -16,8 +18,22 @@ func TestTwoUsers(t *testing.T) {
 	user2Poly := NewUser(paillier)
 
 	//构造属性集
-	attrs1 := []*big.Int{big.NewInt(789789789), big.NewInt(5204002545), big.NewInt(123123123)}
-	attrs2 := []*big.Int{big.NewInt(123123123), big.NewInt(5), big.NewInt(789456123)}
+	var n = 10
+	var attrs1, attrs2 []*big.Int
+	for i := 0; i < n; i++ {
+		a, _ := rand.Int(rand.Reader, paillier.PK)
+		attrs1 = append(attrs1, big.NewInt(1).Set(a))
+		attrs2 = append(attrs2, big.NewInt(1).Set(a))
+	}
+	for i := 0; i < n; i++ {
+		a, _ := rand.Int(rand.Reader, paillier.PK)
+		attrs1 = append(attrs1, big.NewInt(1).Set(a))
+		b, _ := rand.Int(rand.Reader, paillier.PK)
+		attrs2 = append(attrs2, big.NewInt(1).Set(b))
+	}
+	fmt.Println("随机", 2*n, "个数，前半部分相同，后半部分不同")
+	fmt.Println(attrs1)
+	fmt.Println(attrs2)
 
 	//生成多项式并加密
 	err = user1Poly.SetPolynomial(attrs1)
