@@ -7,6 +7,10 @@ import (
 	"strconv"
 )
 
+func copyRat(r *big.Rat) *big.Rat {
+	return big.NewRat(1, 1).Set(r)
+}
+
 func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat, err error) {
 
 	// 判断行数是否比系数多
@@ -33,12 +37,18 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 				varC = eqM[k][i]
 			} else {
 				multipliedLine := make([]*big.Rat, len(eqM[i]))
-				fmt.Println("eqm::", i, eqM)
 				for z, zv := range eqM[i] {
 					//multipliedLine[z] = zv.Multiply(eqM[k][i].Divide(varC)).MultiplyByNum(-1)
-					fmt.Println(z, zv, varC, eqM[k][i])
-					multipliedLine[z] = zv.Neg(zv.Mul(zv, big.NewRat(1, 1).Quo(eqM[k][i], varC)))
-					fmt.Println(multipliedLine[z])
+					// fmt.Println(z, zv, varC, eqM[k][i])
+
+					// multipliedLine[z] = zv.Neg(zv.Mul(zv, big.NewRat(1, 1).Quo(eqM[k][i], varC)))
+
+					// #### 要重新 New 一个 Rat ####
+					tmp := copyRat(zv)
+					tmp.Mul(tmp, big.NewRat(1, 1).Quo(eqM[k][i], varC))
+					tmp.Neg(tmp)
+					multipliedLine[z] = tmp
+					// fmt.Println(multipliedLine[z])
 				}
 				newLine := make([]*big.Rat, len(eqM[k]))
 				for z, zv := range eqM[k] {
@@ -46,6 +56,7 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 					newLine[z] = zv.Add(zv, multipliedLine[z])
 				}
 				eqM[k] = newLine
+
 			}
 		}
 	}
@@ -76,12 +87,20 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 			v := resultEqM[i]
 			if i == z {
 				processIndex = getFirstNonZeroIndex(v)
-				firstLine = v
+				firstLine = resultEqM[i]
 			} else {
-				mult := v[processIndex].Quo(v[processIndex], firstLine[processIndex]).Mul(v[processIndex], big.NewRat(-1, 1))
+				// mult := v[processIndex].Quo(v[processIndex], firstLine[processIndex]).Mul(v[processIndex], big.NewRat(-1, 1))
+
+				mult := copyRat(v[processIndex])
+				mult.Quo(mult, firstLine[processIndex])
+				mult.Mul(mult, big.NewRat(-1, 1))
 				for j, jv := range v {
-					firstLine[j].Mul(firstLine[j], mult)
-					resultEqM[i][j] = firstLine[j].Add(firstLine[j], jv)
+					// firstLine[j].Mul(firstLine[j], mult)
+					// resultEqM[i][j] = firstLine[j].Add(firstLine[j], jv)
+
+					resultEqM[i][j] = copyRat(firstLine[j])
+					resultEqM[i][j].Mul(resultEqM[i][j], mult)
+					resultEqM[i][j].Add(resultEqM[i][j], jv)
 				}
 			}
 		}

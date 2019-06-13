@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/BlockchainLabFudan/cc-set-intersection/model"
 	"math/big"
 	"testing"
+
+	"github.com/BlockchainLabFudan/cc-set-intersection/model"
 )
 
 func TestGussian(t *testing.T) {
