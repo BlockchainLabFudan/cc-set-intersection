@@ -1,22 +1,23 @@
 package main
 
 import (
+	"fmt"
+	"github.com/BlockchainLabFudan/cc-set-intersection/model"
 	"math/big"
 	"testing"
-	"github.com/BlockchainLabFudan/cc-set-intersection/model"
 )
 
-func TestGussian(t *testing.T)  {
+func TestGussian(t *testing.T) {
 	m := make([][]int64, 3)
 	m[0] = []int64{1, 2, 1, 20}
 	m[1] = []int64{3, 1, 2, 29}
 	m[2] = []int64{1, 1, 1, 15}
 
-	m2 := make([][] *big.Rat, len(m))
+	m2 := make([][]*big.Rat, len(m))
 	for i, iv := range m {
 		mr := make([]*big.Rat, len(m[i]))
 		for j, jv := range iv {
-			mr[j] = big.NewRat(jv,1)
+			mr[j] = big.NewRat(jv, 1)
 		}
 		m2[i] = mr
 	}
@@ -31,7 +32,7 @@ func TestGussian(t *testing.T)  {
 		t.Error(gausErr)
 	}
 
-	print(res)
+	fmt.Printf("%v\n", res)
 	//success := true
 	//for i, v := range res {
 	//	if v[0] != resTest[i][0] {
@@ -42,6 +43,5 @@ func TestGussian(t *testing.T)  {
 	//if !success {
 	//	t.Error("failed to solve the system of linear equations")
 	//}
-
 
 }

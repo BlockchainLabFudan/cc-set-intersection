@@ -16,8 +16,8 @@ func TestTwoUsers(t *testing.T) {
 	user2Poly := NewUser(paillier)
 
 	//构造属性集
-	attrs1 := []*big.Int{big.NewInt(789789789), big.NewInt(321321321), big.NewInt(123123123)}
-	attrs2 := []*big.Int{big.NewInt(123123123), big.NewInt(321321321), big.NewInt(789456123)}
+	attrs1 := []*big.Int{big.NewInt(789789789), big.NewInt(5204002545), big.NewInt(123123123)}
+	attrs2 := []*big.Int{big.NewInt(123123123), big.NewInt(5), big.NewInt(789456123)}
 
 	//生成多项式并加密
 	err = user1Poly.SetPolynomial(attrs1)
