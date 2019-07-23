@@ -55,19 +55,20 @@ func (pai *Paillier) Encrypt(m *big.Int) (*big.Int, error) {
 
 //从选取随机的r
 func (pai *Paillier) randomR() (*big.Int, error) {
-	res, err := rand.Int(rand.Reader, pai.N2)
-	if err != nil {
-		return nil, err
-	}
+	var res *big.Int
+	var err error
 	//欧几里得算法
 	//for !euclid(res, pai.N2) {
 	//	res,_ = rand.Int(rand.Reader, pai.N2)
 	//}
 	z := big.NewInt(0)
 	one := big.NewInt(1)
-	z.GCD(nil, nil, res, pai.N2)
 	for z.Cmp(one) != 0 {
-		res, _ = rand.Int(rand.Reader, pai.N2)
+		res, err = rand.Int(rand.Reader, pai.N2)
+		if err != nil {
+			return nil, err
+		}
+		z.GCD(nil, nil, res, pai.N2)
 	}
 	return res, nil
 }
