@@ -31,7 +31,6 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 		eqM = sortMatrix(eqM, i)
 		//fmt.Println("---------", eqM)
 		varC := big.NewRat(1, 1)
-
 		for k := i; k < len(eqM); k++ {
 			if k == i {
 				varC.Set(eqM[k][i])
@@ -47,13 +46,17 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 					tmp := copyRat(zv)
 					tmp.Mul(tmp, big.NewRat(1, 1).Quo(eqM[k][i], varC))
 					tmp.Neg(tmp)
+					//fmt.Println("---------", tmp)
 					multipliedLine[z] = tmp
-					// fmt.Println(multipliedLine[z])
+
 				}
 				newLine := make([]*big.Rat, len(eqM[k]))
+				//fmt.Println("---------", eqM)
+				//fmt.Println("---------", multipliedLine)
 				for z, zv := range eqM[k] {
 					newLine[z] = big.NewRat(1, 1).Add(zv, multipliedLine[z])
 				}
+				//fmt.Println("+++++++++++", newLine)
 				eqM[k] = newLine
 				//fmt.Println("+++++++++++", eqM)
 			}
@@ -68,10 +71,12 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 		resultEqM = append(resultEqM, eqM[i])
 		//}
 	}
+	//fmt.Println("---------", resultEqM)
 
 	getFirstNonZeroIndex := func(sl []*big.Rat) (index int) {
+		zero := big.NewInt(0)
 		for i, v := range sl {
-			if v.Num().Int64() != 0 {
+			if v.Num().Cmp(zero) != 0 {
 				index = i
 				return
 			}
@@ -86,6 +91,7 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 		for i := z; i < len(resultEqM); i++ {
 			v := resultEqM[i]
 			if i == z {
+				//fmt.Println(v)
 				processIndex = getFirstNonZeroIndex(v)
 				firstLine = resultEqM[i]
 			} else {
@@ -94,17 +100,20 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 				mult := copyRat(v[processIndex])
 				mult.Quo(mult, firstLine[processIndex])
 				mult.Mul(mult, big.NewRat(-1, 1))
+				//fmt.Println("---------", resultEqM)
+				//fmt.Println("---------", firstLine)
+				//fmt.Println("---------", v)
 				for j, jv := range v {
-					// firstLine[j].Mul(firstLine[j], mult)
-					// resultEqM[i][j] = firstLine[j].Add(firstLine[j], jv)
-
 					resultEqM[i][j] = copyRat(firstLine[j])
 					resultEqM[i][j].Mul(resultEqM[i][j], mult)
 					resultEqM[i][j].Add(resultEqM[i][j], jv)
 				}
+				//fmt.Println("---------", resultEqM)
+				//fmt.Println("---------", v)
 			}
 		}
 	}
+	//fmt.Println("---------", resultEqM)
 
 	if printTriangularForm {
 		for i := len(resultEqM) - 1; i >= 0; i-- {
@@ -118,6 +127,7 @@ func SolveGaussian(eqM [][]*big.Rat, printTriangularForm bool) (res [][]*big.Rat
 		}
 	}
 
+	//fmt.Println("---------", resultEqM)
 	// Calculating variables.
 	res = make([][]*big.Rat, len(eqM[0])-1)
 	if getFirstNonZeroIndex(resultEqM[0]) == len(resultEqM[0])-2 {

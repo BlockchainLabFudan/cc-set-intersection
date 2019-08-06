@@ -164,10 +164,12 @@ func (p *Polynomial) Add(g *Polynomial) (*Polynomial, error) {
 	for index < p.Length {
 		coef1 = append(coef1, p.ECoefficients1[index])
 		coef2 = append(coef2, p.ECoefficients2[index])
+		index++
 	}
 	for index < g.Length {
 		coef1 = append(coef1, g.ECoefficients1[index])
 		coef2 = append(coef2, g.ECoefficients2[index])
+		index++
 	}
 
 	res := Polynomial{true, p.Length, nil, coef1, coef2, p.Ed}

@@ -24,7 +24,7 @@ func TestTwoUsers(t *testing.T) {
 	println("h is right::", h1.Cmp(h2) == 0)
 
 	//构造属性集
-	var m = 20
+	var m = 50
 	var n = 10
 	var attrs1, attrs2 []*big.Int
 	for i := 0; i < m; i++ {
